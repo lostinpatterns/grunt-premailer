@@ -139,6 +139,16 @@ module.exports = function(grunt) {
                 grunt.file.write(f.dest, ''); // Create empty destination file
             }
 
+            // HACK: if queryString has utm params then use the current filename as the campaign if no campaign was included
+            if(/utm_/.test(options.queryString) && !/utm_campaign/.test(options.queryString)) {
+                var filename = path.basename(srcFile, path.extname(srcFile));
+                args.each(function(arg, idx) {
+                    if(/query-string/.test(arg)) {
+                        args[idx] = arg + '&utm_campaign=' + filename;
+                    }
+                });
+            }
+
             // Premailer expects absolute paths
             batchArgs = args.concat(['--file-in', path.resolve(srcFile.toString()), '--file-out', path.resolve((tmpFile || f.dest).toString())]);
 
